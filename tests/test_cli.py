@@ -124,6 +124,29 @@ sys.exit(int(os.environ.get("FAKE_EXIT", "0")))
         self.assertIn("private-stderr", result.stderr)
         self.assertEqual(self.counter.read_text(), "send\nreply\n")
 
+    def test_send_records_name_and_text_when_options_precede_positionals(self):
+        dispatch = self.new()
+        cases = [["--after", "other", "--force", "--timeout=60", "dev", "fix it"],
+                 ["--force", "--", "dev", "--fix it"]]
+        for arguments in cases:
+            result = self.run_cli("send", "--dispatch", dispatch, "--", str(self.fake), "send", *arguments)
+            self.assertEqual(result.returncode, 0, result.stderr)
+        sends = sorted((e for e in self.events() if e["kind"] == "corral.send"), key=lambda e: e["observed_at"])
+        self.assertEqual([e["data"]["target_name"] for e in sends], ["dev", "dev"])
+        self.assertEqual([self.blob(e["data"]["text"]) for e in sends], [b"fix it", b"--fix it"])
+        self.assertEqual(self.counter.read_text(), "send\nsend\n")
+
+    def test_send_with_unrecognized_option_keeps_name_and_text_unknown(self):
+        dispatch = self.new()
+        result = self.run_cli("send", "--dispatch", dispatch, "--", str(self.fake), "send",
+                              "--new-option", "value", "dev", "fix it")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.counter.read_text(), "send\n")
+        event = next(e for e in self.events() if e["kind"] == "corral.send")
+        self.assertIsNone(event["data"]["target_name"])
+        self.assertIsNone(event["data"]["text"])
+        self.assertEqual(event["data"]["missing_reason"], "unrecognized_send_arguments")
+
     def test_unwritable_store_does_not_repeat_or_hide_command_result(self):
         self.root.write_text("not a directory")
         result = self.run_cli("reply", "--", str(self.fake), "reply", "dev")

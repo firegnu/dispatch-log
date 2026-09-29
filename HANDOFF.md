@@ -16,10 +16,11 @@
 - corral start/send/reply 包装、派发/返工前任务书快照、模型参数与标签分开、主控决定与审查原文。未关联、实例冲突、草稿合并与 pending 不伪造为成功或确定归属。
 - 20 项检查通过（含 3 项已安装 route.py 的离线契约检查）；使用临时目录/假 corral/合成 JEV 响应，无真实平台请求。检查命令和 RED→GREEN 证据见 `docs/VALIDATION.md`。
 - 功能提交：`7c0a749 实现独立任务过程记录器与 JEV 版本适配`；随后单独提交本交接文档。
+- 接手后修正：`send` 的选项写在名字前（如 `--after X dev 正文`）时，原先会错记 agent 名和正文。现按 `corral send --help` 的公开选项提取名字/正文，无法识别时记 null 与 `missing_reason`。新增 2 项检查，全套 22 项通过（含 route.py 契约检查，0 跳过）。改动在 `dispatch_log/corral.py`、`tests/test_cli.py` 及设计/验证文档，已随本交接更新一起提交。
 
 ## 当前状态与未完成项
 
-- 本地提交已完成；没有配置 remote、没有创建远端仓库或推送。交接文档随本轮提交，收尾目标为工作树干净；接手请用 `git status --short` 核实。
+- 经用户明确要求，已建 GitHub 公开仓库 `https://github.com/firegnu/dispatch-log`（remote `origin`）并推送 `main`。推送前用 gitleaks/trufflehog 扫描工作树与历史，未发现密钥。公开内容包含提交作者邮箱与文档中的本机路径。收尾目标为工作树干净；接手请用 `git status --short` 核实。
 - 未安装到全局 PATH；直接运行 `./dlog` 或 `python3 -m dispatch_log`。未修改任何客户端个人全局指令，也没有安装个人技能。
 - 尚未在真实任务中启用；默认真实数据目录本轮未创建。测试数据均在已清理的临时目录里。
 - saddle Dispatch 的读取/展示尚未接入。这是另一仓库的后续工作，不要顺手修改 saddle 或推进 T38 队列。

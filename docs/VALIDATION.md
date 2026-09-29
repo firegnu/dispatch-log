@@ -29,6 +29,13 @@ DLOG_TEST_ROUTE=/Users/firegnu/Developer/personal_projs/corral/corral-dispatch-s
 
 已安装源码检查中 urllib.request.urlopen 全部被替换为合成响应/异常；没有访问真实平台。真实 route.py 字节只读加载，未生成上游 pycache。
 
+## 修正：send 选项在名字之前
+
+日期：2026-09-29。对照 `corral send --help` 发现，`send --after X dev '正文'` 会把 `--after` 记成 agent 名、`X` 记成正文；真实命令本身不受影响。
+
+- RED：新增 2 项检查，均因记录字段错误失败（记成 `--after`/`--force`、`--new-option`），不是语法或导入失败。
+- GREEN：按公开选项提取位置参数，无法识别时记为未知。设置 `DLOG_TEST_ROUTE` 为已安装 route.py 后，22 项通过，0 失败，0 跳过。
+
 ## 验证范围
 
 没有验证真实平台调用、真实 corral 生命周期、长期真实采集或 saddle 展示。当前可交接的是记录器首版，不宣称全量记录、agent 因果归属或 HTTP 原始报文采集。

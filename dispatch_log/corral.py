@@ -24,6 +24,24 @@ def last_option(tokens, names, default=None):
     return values[-1] if values else default
 
 
+def send_positionals(tokens):
+    """Mirror `corral send --help`; any other option makes name/text unknown (None)."""
+    positionals, index = [], 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token == "--":
+            return positionals + tokens[index + 1:]
+        if token.partition("=")[0] in {"--after", "--timeout"}:
+            index += 1 if "=" in token else 2
+            continue
+        if token.startswith("-") and token != "--force":
+            return None
+        if token != "--force":
+            positionals.append(token)
+        index += 1
+    return positionals
+
+
 def snapshot(task_file, cwd, recorder):
     path = Path(task_file).expanduser()
     path = (cwd / path).resolve() if not path.is_absolute() else path.resolve()
@@ -67,15 +85,20 @@ def execute(action, command, recorder, task_file=None, kind="followup"):
     operation_id = uuid.uuid4().hex
     if action == "start":
         data = start_data(command, task_file, recorder)
-    else:
+    elif action == "reply":
         data = {"target_name": command[2]}
-        if action == "send":
-            if len(command) < 4:
-                raise ValueError("send 缺少文本（尚未执行）")
-            data.update({"text": recorder.blob(command[3]), "kind": kind})
-            if task_file:
-                data["task_file"] = snapshot(task_file, Path.cwd(), recorder)
-                data["snapshot_semantics"] = "file_before_invocation_not_proof_of_read"
+    else:
+        positionals = send_positionals(command[2:])
+        if positionals is not None and len(positionals) < 2:
+            raise ValueError("send 缺少名字或文本（尚未执行）")
+        data = {"target_name": None, "text": None, "kind": kind}
+        if positionals is None or len(positionals) > 2:
+            data["missing_reason"] = "unrecognized_send_arguments"
+        else:
+            data.update({"target_name": positionals[0], "text": recorder.blob(positionals[1])})
+        if task_file:
+            data["task_file"] = snapshot(task_file, Path.cwd(), recorder)
+            data["snapshot_semantics"] = "file_before_invocation_not_proof_of_read"
     data.update({"operation_id": operation_id, "requested_at": now()})
     # An intent without a result means completion is UNKNOWN, not failed/not run.
     recorder.event("corral.intent", {"action": action, **data})
