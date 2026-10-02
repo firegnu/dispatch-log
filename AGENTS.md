@@ -1,5 +1,7 @@
 # dispatch-log 开发约定
 
+> **已退役（2026-10-02）**：用户已批准由 [Saddle](https://github.com/firegnu/saddle) 核心遥测接管新链路，路由由其可选 dispatch 插件提供。本仓库停止新开发与新采集，不再复制旧启用模板或以旧 dlog 包装新派发。以下内容仅作历史说明；本地程序和 `~/.local/share/dispatch-log/` 旧数据保留，不导入、不删除，`ls/show/cat` 可离线查看历史。不要自行恢复服务、委派任务或修改上游。
+
 先读 `README.md`、`docs/DESIGN.md`、`HANDOFF.md`。本项目由 saddle T38 讨论拆出，用户已选择独立 repo 和 JEV 方案 B。
 
 - 只维护本仓库的个人记录器；未经用户明确授权，不改 corral、drover、共享 corral-dispatch-skill 或客户端全局指令，不推进真实队列。

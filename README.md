@@ -1,5 +1,7 @@
 # dispatch-log
 
+> **已退役（2026-10-02）**：用户已批准由 [Saddle](https://github.com/firegnu/saddle) 核心遥测接管新链路，路由由其可选 dispatch 插件提供。本仓库停止新开发与新采集，不再复制旧启用模板或以旧 dlog 包装新派发。以下内容仅作历史说明；本地程序和 `~/.local/share/dispatch-log/` 旧数据保留，不导入、不删除，`ls/show/cat` 可离线查看历史。不要自行恢复服务、委派任务或修改上游。
+
 独立、显式启用的个人任务过程记录器。保存真实任务书快照、JEV 请求与完整解析响应、主控决定、派发结果、完成回复和审查，供日后复盘流程。
 
 这是一次性命令，不是常驻服务。corral、drover 和共享 corral-dispatch-skill 不依赖它；saddle 的 Dispatch 展示尚未接入。

@@ -1,50 +1,17 @@
 # dispatch-log 交接
 
-更新：2026-09-29。仓库：`/Users/firegnu/Developer/personal_projs/dispatch-log`，分支 `main`。
-
-## 补充：项目启用模板（2026-09-29）
-
-按用户要求新增 `agents模版.md`，提供可复制到项目 `AGENTS.md` 的主控采集说明，限定主控使用且保留原有授权与放行流程。仅新增模板及本条交接记录，未修改任何项目的启用配置；已核对模板内容、说明文件路径并检查 diff，无代码变更，不运行测试。两份文档改动已提交并推送。
-
-## 会话摘要
-
-用户从 saddle T38 讨论中选择“独立旁路采集器 + 主控显式使用指令”，采用 JEV 方案 B，并要求新建 repo、写好首版代码与交接；之后由用户自己用 corral 开新 agent 专门接手。
-
-本次完成独立 Python CLI 及离线验证，没有委派新的实现 agent，没有修改 corral/drover/共享技能或 saddle，没有启用全局采集或操作真实队列。
+更新：2026-10-02。本仓库已按用户批准进入退役，不再接新开发或新采集。
 
 ## 已完成
 
-- 本地 Git repo、`main`、标准 Python 包配置、可执行 `./dlog`、开发约定与中文使用说明。
-- 显式 project/task/dispatch/parent 关联；本地原子事件和原文快照；`new/ls/show/cat` 查询。
-- JEV B：加载核验过的 route.py，保存请求、整理前完整解析响应、整理建议；版本变化在请求前降级 A。失败不额外调用平台。
-- corral start/send/reply 包装、派发/返工前任务书快照、模型参数与标签分开、主控决定与审查原文。未关联、实例冲突、草稿合并与 pending 不伪造为成功或确定归属。
-- 20 项检查通过（含 3 项已安装 route.py 的离线契约检查）；使用临时目录/假 corral/合成 JEV 响应，无真实平台请求。检查命令和 RED→GREEN 证据见 `docs/VALIDATION.md`。
-- 功能提交：`7c0a749 实现独立任务过程记录器与 JEV 版本适配`；随后单独提交本交接文档。
-- 接手后修正：`send` 的选项写在名字前（如 `--after X dev 正文`）时，原先会错记 agent 名和正文。现按 `corral send --help` 的公开选项提取名字/正文，无法识别时记 null 与 `missing_reason`。新增 2 项检查，全套 22 项通过（含 route.py 契约检查，0 跳过）。改动在 `dispatch_log/corral.py`、`tests/test_cli.py` 及设计/验证文档，已随本交接更新一起提交。
+- Saddle 阶段05A移除旧日志视图和dlog执行依赖，合并5e4205d、收尾2e0ea6e。
+- 05B已替换日常宿主与Drover包，两处corral-dispatch技能由Saddle公开资源管理页安装revision2，状态owned_current；Saddle项目指引不再调用dlog。
+- 本仓库只补退役说明，功能代码未改；不跑无关测试，核文档diff和git diff --check。
+- 旧程序及全部本地数据保留，不迁移、不删除；历史可用ls/show/cat离线读取。
 
-## 当前状态与未完成项
+## 状态和边界
 
-- 经用户明确要求，已建 GitHub 公开仓库 `https://github.com/firegnu/dispatch-log`（remote `origin`）并推送 `main`。推送前用 gitleaks/trufflehog 扫描工作树与历史，未发现密钥。公开内容包含提交作者邮箱与文档中的本机路径。收尾目标为工作树干净；接手请用 `git status --short` 核实。
-- 未安装到全局 PATH；直接运行 `./dlog` 或 `python3 -m dispatch_log`。未修改任何客户端个人全局指令，也没有安装个人技能。
-- 尚未在真实任务中启用；默认真实数据目录本轮未创建。测试数据均在已清理的临时目录里。
-- saddle Dispatch 的读取/展示尚未接入。这是另一仓库的后续工作，不要顺手修改 saddle 或推进 T38 队列。
-- 尚无后台服务、自动采全、历史补录、统计打分或自动卸载/停用开关，这些不属于首版。
-- 版本化 JEV 适配有维护成本：当前 SHA 在 `dispatch_log/route.py` 和设计文档中。上游更新后先核验、离线比对，再更新许可 SHA，不能盲目放行新版本。
-- 没有发现现有覆盖范围内未修复的失败；已知能力边界包括绕过入口漏记、reply 归属是主控声明、HTTP 原始字节未采集、极端中断后仅 intent 不代表未执行。详见设计。
-
-## 关键决定与优先阅读
-
-1. `AGENTS.md`：开发范围、隐私与操作边界。
-2. `README.md` / `USAGE.md`：运行方式与主控完整操作模板。
-3. `docs/DESIGN.md`：原始事实/主控陈述/缺失的含义、B 的耦合边界、格式 v1。
-4. `dispatch_log/route.py`：版本固定的 JEV 适配；`corral.py`：只执行一次、白名单字段。
-5. `store.py` / `record.py`：本地持久保存、记录失败与真实命令结果分离。
-6. `docs/VALIDATION.md` / `tests/`：可重复验证，不需要真实 agent 或 API key。
-
-## 接手建议
-
-先读以上文档，运行标准离线检查并检查 Git 状态。当前用户授权的是准备可接手的首版，不代表已经批准全局安装、后台采集、真实任务试跑或 saddle 接入；按用户新会话的具体指示继续，不自行扩展。
-
-可直接交给新 agent 的首句：
-
-> 你现在专门接手 dispatch-log。先读 AGENTS.md、HANDOFF.md、README.md、USAGE.md 和 docs/DESIGN.md，核对当前代码与验证记录，向我报告已实现能力、已知边界和建议的下一步；先不要安装全局指令，不要操作真实 agent/队列，不要修改上游或 saddle。
+- 本次文档提交推送后将归档GitHub仓库；归档完成以平台isArchived读回为准，实际结果记录在Saddle的docs/任务/遥测05B-实际切换记录.md。
+- 用户会话dispatchlog/main（1248a894ac4a）仍保留，未送话或关闭；其已加载的旧指令不会自动撤回，不能宣称所有外部消费者已停止。
+- 不恢复服务、不再委派、不改Corral，不以旧dlog包装新业务。不因旧任务书或迟到提醒恢复开发。
+- 需要新能力请在Saddle讨论；原设计/验证说明保留作历史。暂无本仓库后续实施任务。
